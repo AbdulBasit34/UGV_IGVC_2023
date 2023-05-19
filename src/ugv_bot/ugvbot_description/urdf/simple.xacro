@@ -1,0 +1,264 @@
+<?xml version="1.0"?>
+<!--
+Yeh URDF dynamic hai Koi bhi property ki value change karoge tou bot kutta ban jaiga.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"  name="ugvbot">
+
+  <xacro:property name="PI" value="3.1415926535897931"/>
+
+  <xacro:property name="chassisHeight" value="0.2"/>
+  <xacro:property name="chassisLength" value="0.75"/>
+  <xacro:property name="chassisWidth" value="0.5"/>
+  <xacro:property name="chassisMass" value="10.0"/>
+
+  <xacro:property name="casterRadius" value="0.06"/> <!--casterRadius = wheelRadius - chassisHeight/2--> 
+  <xacro:property name="casterMass" value="0.5"/>
+
+  <xacro:property name="wheelWidth" value="0.08"/>
+  <xacro:property name="wheelRadius" value="0.16"/>
+  <xacro:property name="wheelPos" value="0.20"/> <!--WRT Chassis front-->
+  <xacro:property name="wheelMass" value="2.5"/>
+
+  <xacro:property name="mastMass" value="0.1"/>
+  <xacro:property name="mastLength" value="0.5"/>
+  <xacro:property name="mastCrossection" value="0.05"/>
+  <xacro:property name="mastPos" value="0.30"/> <!--WRT Chassis front-->
+
+  <xacro:property name="cameraSize" value="0.05"/>
+  <xacro:property name="cameraMass" value="0.01"/>
+
+  <xacro:property name="laserSize" value="0.05"/>
+  <xacro:property name="laserMass" value="0.01"/>
+
+  <xacro:property name="imuSize" value="0.05"/> <!--imuSize x 2*imuSize x imuSize/2-->
+  <xacro:property name="imuMass" value="0.005"/>
+
+
+  <xacro:include filename="$(find ugv_bot)/ugvbot_description/urdf/ugvbot.gazebo" />
+  <xacro:include filename="$(find ugv_bot)/ugvbot_description/urdf/wheels.xacro" />
+  <xacro:include filename="$(find ugv_bot)/ugvbot_description/urdf/extras.xacro" />
+
+  <xacro:include filename="$(find ugv_bot)/ugvbot_description/urdf/materials.xacro" />
+  <xacro:include filename="$(find ugv_bot)/ugvbot_description/urdf/macros.xacro" />
+
+  <link name="footprint"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="footprint"/>
+    <child link="chassis"/>
+  </joint>
+
+  <link name="chassis">
+    <collision>
+      <origin xyz="0 0 ${wheelRadius}" rpy="0 0 0"/>
+      <geometry>
+    	  <box size="${chassisLength} ${chassisWidth} ${chassisHeight}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 ${wheelRadius}" rpy="0 0 0"/>
+      <geometry>
+    	  <box size="${chassisLength} ${chassisWidth} ${chassisHeight}"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+
+    <inertial>
+      <origin xyz="0 0 ${wheelRadius}" rpy="0 0 0"/>
+      <mass value="${chassisMass}"/>
+      <box_inertia m="${chassisMass}" x="${chassisLength}" y="${chassisWidth}" z="${chassisHeight}"/>
+    </inertial>
+  </link>
+
+
+  <!--
+    Building Caster
+  -->
+  <joint name="caster_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="caster_wheel"/>
+  </joint>
+
+  <link name="caster_wheel">
+    <collision>
+      <origin xyz="${casterRadius-chassisLength/2} 0 ${casterRadius}" rpy="0 0 0"/>
+      <geometry>
+    	  <sphere radius="${casterRadius}"/>
+      </geometry>
+    </collision>
+  
+    <visual> 
+      <origin xyz="${casterRadius-chassisLength/2} 0 ${casterRadius}" rpy="0 0 0"/>
+      <geometry>
+      	<sphere radius="${casterRadius}"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <origin xyz="${casterRadius-chassisLength/2} 0 ${casterRadius}" rpy="0 0 0"/>
+      <mass value="${casterMass}"/>
+      <sphere_inertia m="${casterMass}" r="${casterRadius}"/>
+    </inertial>     
+  </link>
+  
+
+  <!--
+    Building Wheels
+
+  <xacro:wheel lr="left" tY="1"/>
+  <xacro:wheel lr="right" tY="-1"/>
+  -->
+  <!--
+    Building Mast
+
+  <mast lr="left" tY="1"/>
+  <mast lr="right" tY="-1"/>
+  -->
+  <!--
+    Link Rod Between 2 mast ${chassisWidth - 2*mastCrossection}
+  -->
+	<joint name="mast_link_joint" type="fixed">
+		<parent link="right_mast"/>
+		<child link="mast_link"/>
+		<origin xyz="0 ${mastCrossection} ${mastLength - mastCrossection}"/>
+	</joint>
+
+  <link name="mast_link">
+    <visual>
+      <origin xyz="0 ${chassisWidth/2 - 3*mastCrossection/2} 0" rpy="0 0 0"/>
+      <geometry>
+      <box size="${mastCrossection} ${chassisWidth - 2*mastCrossection} ${mastCrossection}"/>
+      <origin xyz="0 0 0"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0 ${chassisWidth/2 - 3*mastCrossection/2} 0.001" rpy="0 0 0"/>
+      <geometry>
+      <box size="${mastCrossection} ${chassisWidth - 2*mastCrossection} ${mastCrossection}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.5"/>
+      <origin xyz="0 ${chassisWidth/2 - 3*mastCrossection/2} 0" rpy="0 0 0"/>
+      <mass value="${chassisMass}"/>
+      <box_inertia m="${mastMass}" x="${mastCrossection}" y="${chassisWidth - 2*mastCrossection}" z="${mastCrossection}"/>
+    </inertial>
+  </link>
+
+  <!--
+    Adding Camera to mast link for photo keechne ke liye
+  -->
+	<joint name="camera_joint" type="fixed">
+		<parent link="mast_link"/>
+		<child link="camera"/>
+    <origin xyz="${mastCrossection/2} ${chassisWidth/2 - 3*mastCrossection/2} ${mastCrossection}" rpy="0 ${PI/12} 0"/>
+	</joint>
+
+  <link name="camera">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${cameraSize} ${cameraSize} ${cameraSize}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${cameraSize} ${cameraSize} ${cameraSize}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="${cameraMass}"/>
+      <box_inertia m="${cameraMass}" x="${cameraSize}" y="${cameraSize}" z="${cameraSize}"/>
+    </inertial>
+    <material name="Black"/>
+  </link>
+
+  <!-- The point cloud pose error is displayed in RVIZ, and an empty link and an empty joint are added here to adjust the point cloud tf pose -->
+  <!-- to pose of depth point cloud in rviz we have to make a fake joint and then give it a offset 
+        1. either in Joints defination by varying position and orientation which will result in floating joint in 
+                <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708 "/>
+        or
+        2. using tf package's static_transform_publisher function which will show results only in rviz
+          i choose to showoff my understandings....... bitches.
+   
+  <joint name="camera_joint_fake" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="camera"/>
+    <child link="camera_fake"/>
+  </joint>
+
+  <link name="camera_fake"/> -->
+  <!--Used in gazebo reference frame name for plugin-->
+
+  <!--
+    Laser Scannner
+  -->
+  <joint name="laser_joint" type="fixed">
+    <origin xyz="${-laserSize/2+chassisLength/2} 0 ${chassisHeight/2+wheelRadius+laserSize/2}" rpy="0 0 0"/>
+    <parent link="chassis"/>
+    <child link="laser"/>
+  </joint>
+
+  <link name="laser">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	      <box size="${laserSize} ${laserSize} ${laserSize}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	      <box size="${laserSize} ${laserSize} ${laserSize}"/>
+        <!--IF you want fatties around your bot use HOkuyu lidar Mesh-->
+        <!--<mesh filename="package://ugv_bot/ugvbot_description/hokuyo.dae"/>-->
+      </geometry>
+      <material name="White"/>
+    </visual>
+
+    <inertial>
+      <mass value="${laserMass}" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <box_inertia m="${laserMass}" x="${laserSize}" y="${laserSize}" z="${laserSize}" />
+    </inertial>
+  </link>
+
+  <!--
+    IMU Block
+  -->
+
+  <joint name="imu_joint" type="fixed">
+    <origin xyz="${-chassisLength/2 + imuSize/2} 0 ${chassisHeight/2 + wheelRadius + imuSize/4}"/>
+    <parent link="chassis"/>
+    <child link="imu"/>
+  </joint>
+
+  <link name="imu">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	      <box size="${imuSize} ${2*imuSize} ${imuSize/2}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	      <box size="${imuSize} ${2*imuSize} ${imuSize/2}"/>
+      </geometry>
+      <material name="White"/>
+    </visual>
+
+    <inertial>
+      <mass value="${laserMass}" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <box_inertia m="${imuMass}" x="${imuSize}" y="${2*imuSize}" z="${imuSize/2}" />
+    </inertial>
+  </link>
+
+
+</robot>

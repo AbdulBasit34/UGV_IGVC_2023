@@ -1,0 +1,26 @@
+
+<launch>
+
+  <arg name="PI" value="3.14"/>
+
+  <arg name="yaw" value="-1.5708"/>
+  <arg name="pitch" value="0"/> <!-- Camera's Angle of depression see in URDF-->
+  <arg name="roll" value="-1.5708"/> 
+
+
+  <!-- convert joint states to TF transforms for rviz but only for static joints -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"	respawn="false" output="screen">
+    <remap from="/joint_states" to="/ugvbot/joint_states"/>
+  </node> 
+
+  <!-- convert joint states to TF transforms for rviz but only for dynamic joints (Wheels) -->
+  <!-- When we need to remove gazebo and publish actual encoder data on joint state-->
+  <!-- <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+      <remap from="/joint_states" to="/ugvbot/dynamic_joint_states"/>
+  </node>  -->
+
+  <!-- If using custom transfrom for RVIZ -->
+  <!-- convert joint states to TF transforms for rviz, etc -->
+  <!-- Exact pose and orientation of depth-camera wrt cameraframe 0.76
+  <node pkg="tf" type="static_transform_publisher" name="odom_camera_broadcaster" args="0 0 0 $(arg yaw) $(arg pitch) $(arg roll) camera camera_fake 100"/> -->
+</launch>

@@ -1,0 +1,3 @@
+<launch>
+  <node name="lane_wpx_node" pkg="ugv_bot" type="lane_wpx_wrapper.sh" output="screen" />
+</launch>

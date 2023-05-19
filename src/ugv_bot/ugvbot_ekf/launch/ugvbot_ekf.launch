@@ -1,0 +1,9 @@
+<launch>
+  
+    <!-- Start EKF for localization  -->
+    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization" >
+        <rosparam command="load" file="$(find ugv_bot)/ugvbot_ekf/config/ugvbot_ekf.yaml" />
+        <remap from="/cmd_vel" to="/ugvbot/velocity_controller/cmd_vel"/>
+    </node>
+
+</launch>

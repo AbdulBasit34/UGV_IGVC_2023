@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"  name="ugvbot">
+
+  <xacro:macro name="wheel" params="lr tY">
+    <link name="${lr}_wheel">
+      <collision>
+        <origin xyz="0 0 0.0001" rpy="0 ${PI/2} ${PI/2}" />
+        <geometry>
+          <cylinder length="${wheelWidth}" radius="${wheelRadius}"/>
+        </geometry>
+      </collision>
+
+      <visual>
+        <origin xyz="0 0 0.0001" rpy="0 ${PI/2} ${PI/2}" />
+        <geometry>
+          <cylinder length="${wheelWidth}" radius="${wheelRadius}"/>
+        </geometry>
+      </visual>
+
+      <inertial>
+        <origin xyz="0 0 0.0001" rpy="0 ${PI/2} ${PI/2}" />
+        <mass value="${wheelMass}"/>
+        <xacro:cylinder_inertia m="${wheelMass}" r="${wheelRadius}" h="${wheelWidth}"/>
+      </inertial>
+
+    </link>
+
+    <gazebo reference="${lr}_wheel">
+      <mu1 value="1000.0"/>
+      <mu2 value="1000.0"/>
+      <kp  value="10000000.0" />
+      <kd  value="0.01" />
+      <!--Generates Drifting problems 
+      <fdir1 value="1 0 0"/>-->
+      <material>Gazebo/Black</material>
+    </gazebo>
+
+    <joint name="${lr}_wheel_hinge" type="continuous">
+      <parent link="base_link"/>
+      <child link="${lr}_wheel"/>
+      <origin xyz="${+chassisLength/2 - wheelPos} ${tY*wheelWidth/2+tY*chassisWidth/2} ${wheelRadius}" rpy="0 0 0" /> 
+      <axis xyz="0 1 0" rpy="0 0 0" />
+      <!--limit effort="3" velocity="0.4"/>
+      <joint_properties damping="1000.0" friction="1000.0"/-->
+      <erp>0.0</erp>
+      <cfm>0.02</cfm>
+    </joint>
+
+
+    <transmission name="${lr}_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${lr}_wheel_hinge">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${lr}Motor">
+        <hardwareInterface>VelocityJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+  </xacro:macro>
+</robot>

@@ -1,0 +1,8 @@
+<launch>
+  <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan" >
+    <param name="scan_height" value="3"/> 
+    <param name="output_frame_id" value="footprint"/>
+    <remap from="image" to="kinect_depth_cam/depth/image_raw" />
+    <remap from="scan" to="/fake_scan" />
+  </node>
+</launch>

@@ -1,0 +1,48 @@
+<launch>
+  <!--Spawning Positon & Orientation-->
+  <arg name="x" default="-10.0"/> 
+  <arg name="y" default="-37.0"/>
+  <arg name="z" default="0.05"/> 
+      <!-- Starting -x -1.35 -y 1.35 -z 0.03 -Y -1.57 -->
+      <!-- Final Goal -x 0.00 -y 0.00 -z 0.00 -->
+  <arg name="roll" default="0.0"/>
+  <arg name="pitch" default="0.0"/>
+  <arg name="yaw" default="0.0"/>
+
+  <arg name="need_gazebo" value="True"/>
+
+  <!-- Load the URDF into the ROS Parameter Server -->
+  <param name="robot_description"	 command="$(find xacro)/xacro '$(find ugv_bot)/ugvbot_description/urdf/ugvbot.xacro'" />
+
+  <group if="$(arg need_gazebo)">
+
+    <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+    <include file="$(find ugv_bot)/launch/empty_world.launch">
+      <!-- <arg name="world_name" value="$(find ugv_bot)/worlds/worlds/igvc2.world"/>  -->
+      <!--THE EMPTY WORLD LAUNCH FILE IS CUSTOMIZED TO NOT TO PUBLISH ODOM /tf -->
+    </include>
+
+    <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    args="-x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw) -param robot_description -urdf -model ugvbot"/>
+  </group>
+
+  <!-- transformations for rviz launch file-->
+  <include file="$(find ugv_bot)/ugvbot_transform/transform.launch" />
+
+  <!-- ros_control ugvbot launch file -->
+  <include file="$(find ugv_bot)/ugvbot_control/launch/ugvbot_control.launch" /> 
+
+  
+  <!-- filtered odometry EKF Launch file -->
+  <!-- <include file="$(find ugv_bot)/ugvbot_ekf/launch/ugvbot_ekf.launch" />  -->
+
+
+  <!-- Depth to laser scan 
+  <include file="$(find ugv_bot)/transformations/depth_to_laser.launch" />
+  -->
+
+  <!-- Run RVIZ  
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ugv_bot)/rviz_config/lanes_publisher.rviz" output="screen"/>
+  -->
+</launch>

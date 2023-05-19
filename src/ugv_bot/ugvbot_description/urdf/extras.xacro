@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"  name="ugvbot">
+
+  <xacro:macro name="mast" params="lr tY">
+
+    <joint name="${lr}_mast_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="${lr}_mast"/>
+      <origin xyz="${chassisLength/2 - mastPos} ${tY*(chassisWidth/2-mastCrossection/2)} ${chassisHeight/2+wheelRadius}" rpy="0 0 0" /> 
+    </joint>
+
+    <link name="${lr}_mast">
+      <visual>
+        <origin xyz="0 0 ${mastLength/2}" rpy="0 0 0"/>
+        <geometry>
+          <box size="${mastCrossection} ${mastCrossection} ${mastLength}"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${mastLength/2}" rpy="0 0 0"/>
+        <geometry>
+          <box size="${mastCrossection} ${mastCrossection} ${mastLength}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 ${mastPos}" rpy="0 0 0"/>
+        <mass value="${mastMass}"/>
+        <xacro:box_inertia m="${mastMass}" x="${mastCrossection}" y="${mastCrossection}" z="${mastCrossection}"/>
+      </inertial>
+    </link>
+  </xacro:macro>
+
+
+
+
+
+</robot>

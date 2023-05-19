@@ -1,0 +1,11 @@
+<launch>
+	
+	<include file="$(find zed_nodelet_example)launch/zed_laserscan_nodelet.launch" /> 
+    
+    <include file="$(find ugv_bot)launch/ugvbot_gmapping.launch" /> 
+    
+    <include file="$(find ugv_bot)launch/ugvbot_movebase.launch" /> 
+
+    <include file="$(find urg_node)launch/urg_lidar.launch" /> 
+
+</launch>
