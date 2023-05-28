@@ -2,37 +2,25 @@
 
 print("Loading libraries, please wait (~20s)... \r", end="", flush=True)
 
-import pickle
-import random
-import logging
+import sys
 
 import cv2
+import math
+import matplotlib.pyplot as plt
 import numpy as np
-#import cupy as cp
-
-#import torch
-#import torchvision.transforms as transforms
-
-import os
-
 import rospy
 import tf
-import math
-from sensor_msgs.msg import Image, LaserScan, PointCloud2
-from std_msgs.msg import Header
-from geometry_msgs.msg import PointStamped
-from cv_bridge import CvBridge
-import sensor_msgs.point_cloud2 as pc2
-import geometry_msgs
-
-import matplotlib.pyplot as plt
-
-import tkinter as tk
 import threading
-
 import time
+import tkinter as tk
 
-import sys
+from sensor_msgs.msg import Image, LaserScan
+from cv_bridge import CvBridge
+
+#If you run into import issues, try enabling these:
+#from std_msgs.msg import Header
+#from geometry_msgs.msg import PointStamped
+#import geometry_msgs
 
 print("Loaded all libraries.                             ")
 
@@ -44,7 +32,7 @@ print("Loaded all libraries.                             ")
 # Don't modify stuff unless you know what you're doing!!
 
 # Verbose
-CONFIDENCE_THRESHOLD    =    0.55		# outdated
+CONFIDENCE_THRESHOLD    =    0.55		# redundant
 VERBOSE                 =    True		# show text
 IMVERBOSE               =    True		# show images
 INTERACTIVE             =    False		# allow modification of (some) global variables live
@@ -105,7 +93,7 @@ horizon_var = None
 skew_var = None
 scale_var = None
 camera_distance_var = None
-fov_var = None
+wthres_var = None
 y_offset_var = None
 
 def setup_sliders():
@@ -127,7 +115,7 @@ def setup_sliders():
         global skew_var
         global scale_var
         global camera_distance_var
-        global fov_var
+        global wthres_var
         global y_offset_var
 
         CONFIDENCE_THRESHOLD = confidence_threshold_var.get()
@@ -137,8 +125,8 @@ def setup_sliders():
         SKEW = skew_var.get()
         SCALE = scale_var.get()
         CAMERA_DISTANCE = camera_distance_var.get()
-        WHITE_THRESHOLD = fov_var.get()
-        Y_OFFEST = y_offset_var.get()
+        WHITE_THRESHOLD = wthres_var.get()
+        Y_OFFSET = y_offset_var.get()
 
     def run_tk():
         global CONFIDENCE_THRESHOLD
@@ -158,7 +146,7 @@ def setup_sliders():
         global skew_var
         global scale_var
         global camera_distance_var
-        global fov_var
+        global wthres_var
         global y_offset_var
         
         root = tk.Tk()
@@ -171,7 +159,7 @@ def setup_sliders():
         skew_var = tk.IntVar()
         scale_var = tk.DoubleVar()
         camera_distance_var = tk.DoubleVar()
-        fov_var = tk.DoubleVar()
+        wthres_var = tk.DoubleVar()
         y_offset_var = tk.DoubleVar()
 
         confidence_threshold_var.trace("w", on_slider_change)
@@ -181,7 +169,7 @@ def setup_sliders():
         skew_var.trace("w", on_slider_change)
         scale_var.trace("w", on_slider_change)
         camera_distance_var.trace("w", on_slider_change)
-        fov_var.trace("w", on_slider_change)
+        wthres_var.trace("w", on_slider_change)
         y_offset_var.trace("w", on_slider_change)
 
         slider_configs = [
@@ -192,7 +180,7 @@ def setup_sliders():
             ("Skew", skew_var, 0, 500, 10, SKEW),
             ("Scale", scale_var, 0.001, 0.01, 0.001, SCALE),
             ("Camera Distance", camera_distance_var, 0, 3, 0.1, CAMERA_DISTANCE),
-            ("White Threshold", fov_var, 150, 255, 1, WHITE_THRESHOLD),
+            ("White Threshold", wthres_var, 150, 255, 1, WHITE_THRESHOLD),
             ("Y-Offset", y_offset_var, 0, 50, 0.1, Y_OFFSET),
         ]
 
