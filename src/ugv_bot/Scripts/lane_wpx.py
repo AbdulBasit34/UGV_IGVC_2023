@@ -53,8 +53,9 @@ OFFSET                  =    0
 
 # Optimisation Parameters
 USE_GPU                 =    True
-HALFRES                 =    True
-FPSCAP                  =    None
+HALFRES                 =    True       # process in intervals of 2 degrees
+QUARTRES                =    False      # process in intervals of 4 degrees (experimental)
+FPSCAP                  =    None       # set cap on how many fps we can output (experimental)
 
 # --------------------------------------------------------------------
 
@@ -282,6 +283,9 @@ def laser_processor():
     global INTERACTIVE
     global USE_GPU
     global Y_OFFSET
+
+    global HALFRES
+    global QUARTRES
     
     global final_img
     global angles
@@ -319,6 +323,9 @@ def laser_processor():
                     continue
                 
                 if HALFRES and i%2:
+                    continue
+
+                if QUARTRES and i%4:
                     continue
             
                 M = cv2.getRotationMatrix2D((r_x, r_y), -i, 1.0)
