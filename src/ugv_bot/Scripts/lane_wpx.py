@@ -60,7 +60,7 @@ Y_OFFSET                =    0.25
 PUBTOPIC                =    '/lanes/scan'	# final publishing topic
 SCALE                   =    0.0045
 CAMERA_DISTANCE         =    1
-FOV                     =    255
+WHITE_THRESHOLD         =    255
 OFFSET                  =    0
 
 # Optimisation Parameters
@@ -72,7 +72,7 @@ FPSCAP                  =    None
 
 # Global vars
 
-HORIZONTAL_SCALING_FACTOR =  2 * CAMERA_DISTANCE * math.tan(math.radians(FOV / 2)) / IMAGE_W
+HORIZONTAL_SCALING_FACTOR =  2 * CAMERA_DISTANCE * math.tan(math.radians(WHITE_THRESHOLD / 2)) / IMAGE_W
 
 bridge = None
 img_received = False
@@ -117,7 +117,7 @@ def setup_sliders():
         global SKEW
         global SCALE
         global CAMERA_DISTANCE
-        global FOV
+        global WHITE_THRESHOLD
         global Y_OFFSET
         
         global confidence_threshold_var
@@ -137,7 +137,7 @@ def setup_sliders():
         SKEW = skew_var.get()
         SCALE = scale_var.get()
         CAMERA_DISTANCE = camera_distance_var.get()
-        FOV = fov_var.get()
+        WHITE_THRESHOLD = fov_var.get()
         Y_OFFEST = y_offset_var.get()
 
     def run_tk():
@@ -148,7 +148,7 @@ def setup_sliders():
         global SKEW
         global SCALE
         global CAMERA_DISTANCE
-        global FOV
+        global WHITE_THRESHOLD
         global Y_OFFSET
         
         global confidence_threshold_var
@@ -192,7 +192,7 @@ def setup_sliders():
             ("Skew", skew_var, 0, 500, 10, SKEW),
             ("Scale", scale_var, 0.001, 0.01, 0.001, SCALE),
             ("Camera Distance", camera_distance_var, 0, 3, 0.1, CAMERA_DISTANCE),
-            ("White Threshold", fov_var, 150, 255, 1, FOV),
+            ("White Threshold", fov_var, 150, 255, 1, WHITE_THRESHOLD),
             ("Y-Offset", y_offset_var, 0, 50, 0.1, Y_OFFSET),
         ]
 
@@ -403,7 +403,7 @@ def live_predictions():
     global IMAGE_H
     global HORIZON
     global SKEW
-    global FOV
+    global WHITE_THRESHOLD
     
     global VERBOSE
     global IMVERBOSE
@@ -455,7 +455,7 @@ def live_predictions():
 
             img = current_img
             img = cv2.resize(img, (IMAGE_W, IMAGE_H))
-            _, img = cv2.threshold(img, FOV, 255, cv2.THRESH_BINARY)
+            _, img = cv2.threshold(img, WHITE_THRESHOLD, 255, cv2.THRESH_BINARY)
 
             #------------------------Transforming ROI ---------------------------#
             
