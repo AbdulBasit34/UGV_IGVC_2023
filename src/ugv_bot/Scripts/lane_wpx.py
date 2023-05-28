@@ -52,7 +52,7 @@ WHITE_THRESHOLD         =    255
 OFFSET                  =    0
 
 # Optimisation Parameters
-USE_GPU                 =    False
+USE_GPU                 =    True
 HALFRES                 =    True
 FPSCAP                  =    None
 
