@@ -37,7 +37,7 @@ VERBOSE                 =    True		# show text
 IMVERBOSE               =    True		# show images
 INTERACTIVE             =    False		# allow modification of (some) global variables live
 
-# Image Transformation
+# Image Transformation (do not change unless lane-lidar merging is off)
 IMAGE_W                 =    640
 IMAGE_H                 =    360
 HORIZON                 =    -190
@@ -52,7 +52,7 @@ WHITE_THRESHOLD         =    255
 OFFSET                  =    0
 
 # Optimisation Parameters
-USE_GPU                 =    True
+USE_GPU                 =    True       # use gpu for cv2 (huge performance bonus)
 HALFRES                 =    True       # process in intervals of 2 degrees
 QUARTRES                =    False      # process in intervals of 4 degrees (experimental)
 FPSCAP                  =    None       # set cap on how many fps we can output (experimental)
